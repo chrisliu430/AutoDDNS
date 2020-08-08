@@ -24,6 +24,7 @@ func UpdateDDNS() {
 	status, _ := regexp.Compile("[a-z0-9A-Z.]{1,16}")
 	analysisCode := status.FindAllString(context, -1)
 	if analysisCode[0] == "good" {
+		fmt.Println("Setup DDNS is sucessful")
 		data := []byte(analysisCode[1])
 		err := ioutil.WriteFile("./IP.txt", data, 0644)
 		if err != nil {
