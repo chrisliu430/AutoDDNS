@@ -9,7 +9,7 @@ import (
 	"regexp"
 )
 
-func UpdateDDNS() {
+func UpdateDDNS(mode int) {
 	ddnsURL := "https://a6ZaoSCdhV0Zg3kn:EaJJJgeG4UnQwtuM@domains.google.com/nic/update?hostname=blog.chliu.dev"
 	resp, err := http.Get(ddnsURL)
 	if err != nil {
@@ -25,6 +25,13 @@ func UpdateDDNS() {
 	analysisCode := status.FindAllString(context, -1)
 	if analysisCode[0] == "good" {
 		fmt.Println("Setup DDNS is sucessful")
+		data := []byte(analysisCode[1])
+		err := ioutil.WriteFile("./IP.txt", data, 0644)
+		if err != nil {
+			log.Panic(err)
+		}
+	} else if analysisCode[0] == "nochg" && mode == 1 {
+		fmt.Println("Resetup DDNS is sucessful")
 		data := []byte(analysisCode[1])
 		err := ioutil.WriteFile("./IP.txt", data, 0644)
 		if err != nil {
@@ -47,7 +54,10 @@ func main() {
 	ipRules, _ := regexp.Compile("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")
 	ipArr := ipRules.FindAllString(context, 1)
 	ip := ipArr[0]
-	file, _ := os.Open("./IP.txt")
+	file, err := os.Open("./IP.txt")
+	if err != nil {
+		UpdateDDNS(1)
+	}
 	fileBody, err := ioutil.ReadAll(file)
 	if err != nil {
 		log.Fatal(err)
@@ -55,6 +65,14 @@ func main() {
 	storedIP := string(fileBody)
 	fmt.Println(ip, storedIP)
 	if ip != storedIP {
-		UpdateDDNS()
+		UpdateDDNS(0)
+	} else {
+		file, err := os.OpenFile("autoDDNS.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+		log.SetOutput(file)
+		log.Println("IP isn't change")
 	}
 }
