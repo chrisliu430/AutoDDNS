@@ -60,7 +60,7 @@ func main() {
 	}
 	fileBody, err := ioutil.ReadAll(file)
 	if err != nil {
-		log.Fatal(err)
+		UpdateDDNS()
 	}
 	storedIP := string(fileBody)
 	fmt.Println(ip, storedIP)
