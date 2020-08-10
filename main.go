@@ -54,13 +54,10 @@ func main() {
 	ipRules, _ := regexp.Compile("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")
 	ipArr := ipRules.FindAllString(context, 1)
 	ip := ipArr[0]
-	file, err := os.Open("./IP.txt")
-	if err != nil {
-		UpdateDDNS(1)
-	}
+	file, _ := os.Open("./IP.txt")
 	fileBody, err := ioutil.ReadAll(file)
 	if err != nil {
-		UpdateDDNS()
+		UpdateDDNS(1)
 	}
 	storedIP := string(fileBody)
 	fmt.Println(ip, storedIP)
