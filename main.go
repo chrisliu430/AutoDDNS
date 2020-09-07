@@ -11,13 +11,9 @@ import (
 // ParseHTML is parse html format
 func ParseHTML(url string) string {
 	resp, err := http.Get(url)
-	if err != nil {
-		log.Fatal(err)
-	}
+	CheckError(err)
 	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
+	CheckError(err)
 	resp.Body.Close()
 	return string(body)
 }
@@ -25,9 +21,7 @@ func ParseHTML(url string) string {
 // UpdateLog is auto update status to log
 func UpdateLog(wrStatus string) {
 	file, err := os.OpenFile("DDNS.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
+	CheckError(err)
 	defer file.Close()
 	log.SetOutput(file)
 	log.Println(wrStatus)
@@ -35,7 +29,7 @@ func UpdateLog(wrStatus string) {
 
 // UpdateDDNS is call google ddns service
 func UpdateDDNS(mode int) {
-	ddnsURL := "https://a6ZaoSCdhV0Zg3kn:EaJJJgeG4UnQwtuM@domains.google.com/nic/update?hostname=blog.chliu.dev"
+	ddnsURL := "https://vDcK9v1XLjvVKA2Q:iumEDItXAksy8oPw@domains.google.com/nic/update?hostname=www.chliu.dev"
 	context := ParseHTML(ddnsURL)
 	status, _ := regexp.Compile("[a-z0-9A-Z.]{1,16}")
 	analysisCode := status.FindAllString(context, -1)
@@ -43,16 +37,12 @@ func UpdateDDNS(mode int) {
 		UpdateLog("Setup DDNS is sucessful")
 		data := []byte(analysisCode[1])
 		err := ioutil.WriteFile("./IP.txt", data, 0644)
-		if err != nil {
-			log.Panic(err)
-		}
+		CheckError(err)
 	} else if analysisCode[0] == "nochg" && mode == 1 {
 		UpdateLog("Resetup DDNS is sucessful")
 		data := []byte(analysisCode[1])
 		err := ioutil.WriteFile("./IP.txt", data, 0644)
-		if err != nil {
-			log.Panic(err)
-		}
+		CheckError(err)
 	}
 }
 
@@ -66,10 +56,25 @@ func main() {
 	if err != nil {
 		UpdateDDNS(1)
 	}
+	logFile, err := os.OpenFile("DDNS.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	CheckError(err)
+	logInfo, err := logFile.Stat()
+	CheckError(err)
+	if logInfo.Size() > 5000 {
+		os.Remove("DDNS.log")
+	}
+	CheckError(err)
 	storedIP := string(fileBody)
 	if nowIP != storedIP {
 		UpdateDDNS(0)
 	} else {
 		UpdateLog("IP isn't changed")
+	}
+}
+
+// CheckError is check error whatever happen
+func CheckError(err error) {
+	if err != nil {
+		log.Fatal(err)
 	}
 }
