@@ -1,12 +1,23 @@
 package main
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"regexp"
 )
+
+type dns struct {
+	URLConfig []urlSet `json:"URLConfig"`
+}
+
+type urlSet struct {
+	URL      string `json:"URL"`
+	UserName string `json:"UserName"`
+	UserPwd  string `json:"UserPwd"`
+}
 
 // ParseHTML is parse html format
 func ParseHTML(url string) string {
@@ -27,22 +38,38 @@ func UpdateLog(wrStatus string) {
 	log.Println(wrStatus)
 }
 
+func parseJSON() []string {
+	var DNS dns
+	urlSlice := make([]string, 0)
+	jsonFile, _ := os.Open("setting.json")
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	json.Unmarshal(byteValue, &DNS)
+	for _, config := range DNS.URLConfig {
+		url := "https://" + config.UserName + ":" + config.UserPwd + "@domains.google.com/nic/update?hostname=" + config.URL
+		urlSlice = append(urlSlice, url)
+	}
+	return urlSlice
+}
+
+func updateStatus(status string, data []byte) {
+	UpdateLog(status)
+	err := ioutil.WriteFile("./IP.txt", data, 0644)
+	CheckError(err)
+}
+
 // UpdateDDNS is call google ddns service
 func UpdateDDNS(mode int) {
-	ddnsURL := "https://vDcK9v1XLjvVKA2Q:iumEDItXAksy8oPw@domains.google.com/nic/update?hostname=www.chliu.dev"
-	context := ParseHTML(ddnsURL)
-	status, _ := regexp.Compile("[a-z0-9A-Z.]{1,16}")
-	analysisCode := status.FindAllString(context, -1)
-	if analysisCode[0] == "good" {
-		UpdateLog("Setup DDNS is sucessful")
-		data := []byte(analysisCode[1])
-		err := ioutil.WriteFile("./IP.txt", data, 0644)
-		CheckError(err)
-	} else if analysisCode[0] == "nochg" && mode == 1 {
-		UpdateLog("Resetup DDNS is sucessful")
-		data := []byte(analysisCode[1])
-		err := ioutil.WriteFile("./IP.txt", data, 0644)
-		CheckError(err)
+	for key, url := range parseJSON() {
+		context := ParseHTML(url)
+		status, _ := regexp.Compile("[a-z0-9A-Z.]{1,16}")
+		analysisCode := status.FindAllString(context, -1)
+		if key == 0 {
+			if analysisCode[0] == "good" {
+				updateStatus("Setup DDNS is sucessful", []byte(analysisCode[1]))
+			} else if analysisCode[0] == "nochg" && mode == 1 {
+				updateStatus("Resetup DDNS is sucessful", []byte(analysisCode[1]))
+			}
+		}
 	}
 }
 
