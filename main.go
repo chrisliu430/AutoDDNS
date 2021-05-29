@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	//"fmt"
 )
 
 type dns struct {
@@ -44,6 +45,7 @@ func parseJSON() []string {
 	jsonFile, _ := os.Open("setting.json")
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 	json.Unmarshal(byteValue, &DNS)
+	//fmt.Println(DNS)
 	for _, config := range DNS.URLConfig {
 		url := "https://" + config.UserName + ":" + config.UserPwd + "@domains.google.com/nic/update?hostname=" + config.URL
 		urlSlice = append(urlSlice, url)

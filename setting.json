@@ -1,0 +1,10 @@
+{
+	
+	"URLConfig": [
+		{
+			"URL": "Your URL",
+			"UserName": "DDNS UserName",
+			"UserPwd": "DDNS UserPassword"
+		}
+	]
+}
