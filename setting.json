@@ -2,9 +2,24 @@
 	
 	"URLConfig": [
 		{
-			"URL": "Your URL",
-			"UserName": "DDNS UserName",
-			"UserPwd": "DDNS UserPassword"
+			"URL": "www.chliu.dev",
+			"UserName": "vDcK9v1XLjvVKA2Q",
+			"UserPwd": "iumEDItXAksy8oPw"
+		},
+		{
+			"URL": "ctf.chliu.dev",
+			"UserName": "sIzxoEo57ea1Prwx",
+			"UserPwd": "On7UpeWeP2f7Ji2w"
+		},
+		{
+			"URL": "mc.chliu.dev",
+			"UserName": "Iv5AMSX0Zc71Xmyi",
+			"UserPwd": "XePFL4n1NEZfHigY"
+		},
+		{
+			"URL": "modmc.chliu.dev",
+			"UserName": "3e8GyyqEUlcyRNBw",
+			"UserPwd": "Q7ayq0j8rs4uIeVu"
 		}
 	]
 }
