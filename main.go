@@ -34,7 +34,13 @@ func parseJSON() []string {
 
 // UpdateDDNS is call google ddns service
 func UpdateDDNS() {
-	logFile, err := os.OpenFile("./Record", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("Record.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	CheckError(err)
+	logInfo, err := logFile.Stat()
+	CheckError(err)
+	if logInfo.Size() > 5000 {
+		os.Remove("Record.log")
+	}
 	CheckError(err)
 	defer logFile.Close()
 	log.SetOutput((logFile))
