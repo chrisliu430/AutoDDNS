@@ -12,4 +12,5 @@
     ]
 }
 ```
+- Rename example.json to setting.json
 - Update recording in local "Record" file
